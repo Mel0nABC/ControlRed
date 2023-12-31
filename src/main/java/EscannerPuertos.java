@@ -4,6 +4,7 @@
  */
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.ArrayList;
 
@@ -11,49 +12,50 @@ import java.util.ArrayList;
  *
  * @author alex
  */
-public class EscannerPuertos {
+public class EscannerPuertos implements Runnable {
 
     private ArrayList<Integer> arrayPuertosAbiertos = new ArrayList<>();
     private Socket sock;
+    private int puertoUnico;
+    private String ip = "";
+
+    public EscannerPuertos() {
+    }
+
+    public EscannerPuertos(String ip, int puertoUnico) {
+        this.ip = ip;
+        this.puertoUnico = puertoUnico;
+    }
 
     public void getPuerto(String host, int puerto) {
 
         try {
-            //new Socket(host, puerto);
-            Socket sock = new Socket(host, puerto);
+            sock = new Socket();
+            sock.connect(new InetSocketAddress(host, puerto), 1000);
+
             if (sock.isConnected()) {
-                sock.close();
                 System.out.println("Puerto abierto: " + puerto);
+                arrayPuertosAbiertos.add(puerto);
+                puertoUnico = puerto;
+                Lanzador.setPuertoUnico(puertoUnico);
+                sock.close();
             }
 
-            arrayPuertosAbiertos.add(puerto);
         } catch (IOException ex) {
             System.out.println("Puerto cerrado: " + puerto);
         }
-    }
-
-    public ArrayList<Integer> getRangoPuerto(String host, int puertoInicio, int puertoFinal) {
-
-        for (int i = puertoInicio; i <= puertoFinal; i++) {
-            sock = new Socket();
-            try {
-                sock = new Socket(host, i);
-                if (sock.isConnected()) {
-                    System.out.println("Puerto abierto: " + i);
-                }
-                arrayPuertosAbiertos.add(i);
-                sock.close();
-            } catch (IOException ex) {
-                System.out.println("Puerto cerrado: " + i);
-            }
-
-        }
-
-        return arrayPuertosAbiertos;
     }
 
     public ArrayList<Integer> getArray() {
         return arrayPuertosAbiertos;
     }
 
+    public int getPuertoUnico() {
+        return puertoUnico;
+    }
+
+    @Override
+    public void run() {
+        getPuerto(ip, puertoUnico);
+    }
 }
