@@ -3,7 +3,6 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 
-
 import java.io.IOException;
 import java.net.Socket;
 import java.net.SocketAddress;
@@ -16,6 +15,7 @@ import java.util.ArrayList;
 public class EscannerPuertos {
 
     private ArrayList<Integer> arrayPuertosAbiertos = new ArrayList<>();
+    private Socket sock;
 
     public void getPuerto(String host, int puerto) {
 
@@ -35,19 +35,19 @@ public class EscannerPuertos {
 
     public ArrayList<Integer> getRangoPuerto(String host, int puertoInicio, int puertoFinal) {
 
-
         for (int i = puertoInicio; i <= puertoFinal; i++) {
-            Socket sock = new Socket();
+            sock = new Socket();
             try {
                 sock = new Socket(host, i);
                 if (sock.isConnected()) {
-                    sock.close();
                     System.out.println("Puerto abierto: " + i);
                 }
                 arrayPuertosAbiertos.add(i);
+                sock.close();
             } catch (IOException ex) {
                 System.out.println("Puerto cerrado: " + i);
             }
+
         }
 
         return arrayPuertosAbiertos;
