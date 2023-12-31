@@ -40,10 +40,12 @@ public class Lanzador {
     private static String[] arrayIpEscan;
     private static String[] arrayPuertos;
     private static int contadorIpScan = 0;
-    private static ArrayList<Thread> listaThreads = new ArrayList<>();
-    private static ArrayList<String> ipListaCompleta = new ArrayList<>();
+    private static ArrayList<Thread> listaThreadsPing;
+    private static ArrayList<Thread> listaThreadsPorts;
+    private static ArrayList<Integer> arrayPuertosRango;
+    private static ArrayList<String> ipListaCompleta;
     private static ArrayList<String> ips;
-    private static ArrayList<Integer> arrayPuertosInt = new ArrayList<>();
+    private static ArrayList<Integer> arrayPuertosInt;
     private static int[] arrayIntInicio;
     private static int[] arrayIntFinal;
 
@@ -55,6 +57,13 @@ public class Lanzador {
     private static FileWriter fichero;
 
     public static void main(String args[]) {
+
+        listaThreadsPing = new ArrayList<>();
+        listaThreadsPorts = new ArrayList<>();
+        arrayPuertosRango = new ArrayList<>();
+        ipListaCompleta = new ArrayList<>();
+        ips = new ArrayList<>();
+        arrayPuertosInt = new ArrayList<>();
 
         System.out.println("#########################################");
         System.out.println("## BIENVENIDO A LA APLICACIÓN ESCANER ##");
@@ -130,6 +139,12 @@ public class Lanzador {
                         //Switch con los actuales menús (opciones de la aplicación).
                         switch (valorRespuesta) {
                             case 1:
+                                listaThreadsPing = new ArrayList<>();
+                                listaThreadsPorts = new ArrayList<>();
+                                arrayPuertosRango = new ArrayList<>();
+                                ipListaCompleta = new ArrayList<>();
+                                ips = new ArrayList<>();
+                                arrayPuertosInt = new ArrayList<>();
                                 break;
                             case 2:
                                 cerrarAplicacion = true;
@@ -334,13 +349,13 @@ public class Lanzador {
             Thread t = new Thread(ping);
             t.setName(ip);
             t.start();
-            listaThreads.add(t);
+            listaThreadsPing.add(t);
         }
         boolean estado = true;
         while (estado) {
 
             estado = false;
-            for (Thread t : listaThreads) {
+            for (Thread t : listaThreadsPing) {
                 if (t.isAlive()) {
                     t.interrupt();
                     estado = true;
@@ -482,12 +497,27 @@ public class Lanzador {
     }
 
     public static void escanerPuertosRango(int puertoInicio, int puertoFinal) {
-        EscannerPuertos escaner = new EscannerPuertos();
 
-        ArrayList<Integer> array = escaner.getArray();
-        array = escaner.getRangoPuerto(ipEscan, puertoInicio, puertoFinal);
+        for (int i = puertoInicio; i <= puertoFinal; i++) {
+            EscannerPuertos escaner = new EscannerPuertos(ipEscan, i);
+            Thread t = new Thread(escaner);
+            t.setName("escaner" + i);
+            t.start();
+            listaThreadsPorts.add(t);
+        }
+        boolean estado = true;
+        while (estado) {
 
-        if (array.size() == 0) {
+            estado = false;
+            for (Thread t : listaThreadsPorts) {
+                if (t.isAlive()) {
+                    t.interrupt();
+                    estado = true;
+                }
+            }
+        }
+
+        if (arrayPuertosRango.isEmpty()) {
             System.out.println("No se han localizado ningún puerto abierto.");
         } else {
 
@@ -495,13 +525,17 @@ public class Lanzador {
             System.out.println("### Finalizó el escaneo de puertos abiertos ###");
             System.out.println("###############################################");
             System.out.println("Puertos del " + puertoInicio + " al " + puertoFinal);
-            for (int i : array) {
+            for (int i : arrayPuertosRango) {
                 System.out.println(i + " - open");
             }
             System.out.println("###############################################");
 
         }
 
+    }
+
+    public static void setPuertoUnico(int puertoUnico) {
+        arrayPuertosRango.add(puertoUnico);
     }
 
     public static boolean isNumeric(String str) {
