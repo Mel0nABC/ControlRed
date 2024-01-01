@@ -28,7 +28,9 @@ public class Lanzador {
     private static final int RANGOMAX = 255;
 
     //Constante para los hilos simultáneos a la hora de escanear ip's
-    private static final int THREADS_SIZE = 500;
+    private static final int THREADS_SIZE_IPS = 500;
+    //Constante para los hilos simultáneos a la hora de escanear puertos
+    private static final int THREADS_SIZE_PUERTOS = 500;
 
     //Declaración e inicialización de variables del aplicativo.
     private static String ipInicio = "";
@@ -300,7 +302,7 @@ public class Lanzador {
             ip = ipIn_1 + "." + ipIn_2 + "." + ipIn_3 + "." + ipIn_4;
             contadorIpScan++;
 
-            if (ips.size() < THREADS_SIZE) {
+            if (ips.size() < THREADS_SIZE_IPS) {
                 ips.add(ip);
             } else {
                 threadPing(ips);
@@ -336,7 +338,7 @@ public class Lanzador {
             System.out.println(ip);
         } while (!ipFinal.equals(ip));
 
-        if (ips.size() != THREADS_SIZE) {
+        if (ips.size() != THREADS_SIZE_IPS) {
             threadPing(ips);
         }
 
@@ -496,15 +498,18 @@ public class Lanzador {
 
     }
 
-    public static void escanerPuertosRango(int puertoInicio, int puertoFinal) {
+    public static void threadPort(ArrayList<Integer> arrayPuertos) {
 
-        for (int i = puertoInicio; i <= puertoFinal; i++) {
-            EscannerPuertos escaner = new EscannerPuertos(ipEscan, i);
+        for (int i = 0; i < arrayPuertos.size(); i++) {
+
+            EscannerPuertos escaner = new EscannerPuertos(ipEscan, arrayPuertos.get(i));
             Thread t = new Thread(escaner);
-            t.setName("escaner" + i);
+            t.setName("escaner" + arrayPuertos.get(i));
             t.start();
             listaThreadsPorts.add(t);
+
         }
+
         boolean estado = true;
         while (estado) {
 
@@ -514,6 +519,23 @@ public class Lanzador {
                     t.interrupt();
                     estado = true;
                 }
+            }
+        }
+
+    }
+
+    public static void escanerPuertosRango(int puertoInicio, int puertoFinal) {
+
+        ArrayList<Integer> arrayPuertos = new ArrayList<>();
+
+        for (int i = puertoInicio; i <= puertoFinal; i++) {
+
+            if (arrayPuertos.size() < THREADS_SIZE_PUERTOS) {
+                arrayPuertos.add(i);
+            } else {
+                threadPort(arrayPuertos);
+                arrayPuertos = new ArrayList<>();
+                arrayPuertos.add(i);
             }
         }
 
