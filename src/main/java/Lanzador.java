@@ -48,8 +48,18 @@ public class Lanzador {
     private static ArrayList<String> ipListaCompleta;
     private static ArrayList<String> ips;
     private static ArrayList<Integer> arrayPuertosInt;
-    private static int[] arrayIntInicio;
-    private static int[] arrayIntFinal;
+
+    //Variables para comprobar los rangos de ip
+    private static int[] arrayIntInicio = new int[4];
+    private static int[] arrayIntFinal = new int[4];
+    private static int ipIn_1;
+    private static int ipIn_2;
+    private static int ipIn_3;
+    private static int ipIn_4;
+    private static int ipFi_1;
+    private static int ipFi_2;
+    private static int ipFi_3;
+    private static int ipFi_4;
 
     //Variables del control de finalizar o continuar aplicación.
     private static boolean cerrarAplicacion = false;
@@ -209,11 +219,10 @@ public class Lanzador {
 
             if (arrayIpFinal.length == 4) {
 
-                if (ipInicio.compareTo(ipFinal) > 0) {
-                    testRangos = true;
-                }
+                generaArrayRangosIp();
+                testRangos = compruebaIps();
 
-                if (testRangos) {
+                if (!testRangos) {
                     System.out.println("La ip de inicio es mayor que la ip final, reviselo, por favor..");
                     System.out.println("IP Inicio: " + ipInicio + " - IP Final: " + ipFinal);
                     System.out.println("Vuelva a intentearlo.");
@@ -278,20 +287,7 @@ public class Lanzador {
 
     public static void recorrerRangoIp() {
 
-        //Arrays de enteros para pasar los arrays de string obtenidos de los strings de ipInicio e ipFinal.
-        arrayIntInicio = new int[4];
-        arrayIntFinal = new int[4];
-
-        //Pasamos el array de Strings a entero.
-        for (int i = 0; i < arrayIpInicio.length; i++) {
-            arrayIntInicio[i] = Integer.parseInt(arrayIpInicio[i]);
-            arrayIntFinal[i] = Integer.parseInt(arrayIpFinal[i]);
-        }
-
-        int ipIn_1 = arrayIntInicio[0];
-        int ipIn_2 = arrayIntInicio[1];
-        int ipIn_3 = arrayIntInicio[2];
-        int ipIn_4 = arrayIntInicio[3];
+        generaArrayRangosIp();
 
         ips = new ArrayList<>();
 
@@ -569,6 +565,45 @@ public class Lanzador {
         }
 
 //############### FINAL ESCANER DE PUERTOS ###############
+    }
+
+    public static boolean compruebaIps() {
+
+        boolean mayor = true;
+
+        for (int i = 0; i < arrayIntInicio.length; i++) {
+            if (arrayIntInicio[i] > arrayIntFinal[i]) {
+                mayor = false;
+                break;
+
+            } else if (arrayIntInicio[i] == arrayIntFinal[i]) {
+
+            } else if (arrayIntInicio[i] < arrayIntFinal[i]) {
+                mayor = true;
+                break;
+            }
+        }
+        System.out.println("teeeeeeeeeeeeeeeeeeeeeeeeeest: "+mayor);
+        return mayor;
+
+    }
+
+    public static void generaArrayRangosIp() {
+        //Pasamos el array de Strings a entero.
+        for (int i = 0; i < arrayIpInicio.length; i++) {
+            arrayIntInicio[i] = Integer.parseInt(arrayIpInicio[i]);
+            arrayIntFinal[i] = Integer.parseInt(arrayIpFinal[i]);
+        }
+
+        ipIn_1 = arrayIntInicio[0];
+        ipIn_2 = arrayIntInicio[1];
+        ipIn_3 = arrayIntInicio[2];
+        ipIn_4 = arrayIntInicio[3];
+
+        ipFi_1 = arrayIntFinal[0];
+        ipFi_2 = arrayIntFinal[1];
+        ipFi_3 = arrayIntFinal[2];
+        ipFi_4 = arrayIntFinal[3];
     }
 
 }
