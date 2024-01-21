@@ -523,15 +523,14 @@ public class Lanzador {
     public static void escanerPuertosRango(int puertoInicio, int puertoFinal) {
 
         ArrayList<Integer> arrayPuertos = new ArrayList<>();
-
-        for (int i = puertoInicio; i <= puertoFinal; i++) {
-
+        
+        for (int i = 0; i <= puertoFinal; i++) {
             if (arrayPuertos.size() < THREADS_SIZE_PUERTOS) {
-                arrayPuertos.add(i);
+                arrayPuertos.add(puertoInicio+i);
             } else {
                 threadPort(arrayPuertos);
                 arrayPuertos = new ArrayList<>();
-                arrayPuertos.add(i);
+                arrayPuertos.add(puertoInicio+i);
             }
         }
 
